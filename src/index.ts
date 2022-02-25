@@ -1,6 +1,6 @@
 import http, { IncomingMessage, ServerResponse } from "http";
 import { RouteType, HandleFnType } from "./interface";
-import Router from "./Router";
+import Router from "./Router/Router";
 // import https from "https";
 
 class SelfExpress {
@@ -12,6 +12,7 @@ class SelfExpress {
     all: [],
   };
   constructor() {}
+
   use(path: string, handle: HandleFnType) {
     this.route.all.push({
       path,
@@ -24,7 +25,7 @@ class SelfExpress {
   get(path: string, handle: HandleFnType) {
     this._router.get(path, handle);
   }
-  
+
   listen(port: number, cb: (() => void) | undefined) {
     this.server = http.createServer(
       (req: IncomingMessage, res: ServerResponse) => {
@@ -39,7 +40,7 @@ class SelfExpress {
         return this._router.handle(req, res);
       }
     );
-    this.server?.listen.apply(this.server, [port, cb]);
+    this.server?.listen.call(this.server, port, cb);
     console.log("server start. listen port:", port);
   }
 }

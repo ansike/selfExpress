@@ -8,3 +8,5 @@ export type RouteType = {
   method: MethodType;
   handle: HandleFnType;
 };
+
+export type RouteMethodType = { [key: string]: boolean };
