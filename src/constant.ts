@@ -1,4 +1,4 @@
-function getBasicNodeMethods() {
+export function getBasicNodeMethods() {
   return [
     'get',
     'post',

@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from "http";
 
-export type HandleFnType = (req: IncomingMessage, res: ServerResponse) => void;
+export type HandleFnType = (req: IncomingMessage, res: ServerResponse, done: NextFnType) => void;
 export type MethodType = "GET" | "POST" | "PUT" | "DELETE" | "*";
 
 export type RouteType = {
@@ -10,3 +10,5 @@ export type RouteType = {
 };
 
 export type RouteMethodType = { [key: string]: boolean };
+
+export type NextFnType = (err?: any) => void;

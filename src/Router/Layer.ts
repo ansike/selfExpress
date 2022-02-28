@@ -1,9 +1,9 @@
 import { IncomingMessage, ServerResponse } from "http";
-import { HandleFnType } from "../interface";
+import { HandleFnType, NextFnType } from "../interface";
 import Route from "./Route";
 
 class Layer {
-  name: string; 
+  name: string;
   path: string;
   method?: string;
   handle: HandleFnType;
@@ -13,13 +13,15 @@ class Layer {
     this.path = path;
     this.handle = fn;
   }
-  handle_request(req: IncomingMessage, res: ServerResponse) {
+  handle_request(req: IncomingMessage, res: ServerResponse, next: NextFnType) {
     const fn = this.handle;
-    if (fn) {
-      fn(req, res);
+    try {
+      fn(req, res, next);
+    } catch (error) {
+      next(error);
     }
   }
-  isMatch(path: string) {
+  isMatchedUrl(path: string) {
     if (path === "*" || path === this.path) {
       return true;
     }

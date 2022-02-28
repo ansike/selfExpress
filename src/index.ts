@@ -1,8 +1,12 @@
 import http, { IncomingMessage, ServerResponse } from "http";
 import { RouteType, HandleFnType } from "./interface";
 import Router from "./Router/Router";
+import { getBasicNodeMethods } from "./constant";
 // import https from "https";
 
+interface SelfExpress {
+  [key: string]: Function | any;
+}
 class SelfExpress {
   _router = new Router();
   server: null | http.Server = null;
@@ -13,36 +17,48 @@ class SelfExpress {
   };
   constructor() {}
 
-  use(path: string, handle: HandleFnType) {
-    this.route.all.push({
-      path,
-      method: "*",
-      handle,
-    });
-    console.log("use:", this.route.all);
+  use(path: string = "/", handle: HandleFnType) {
+    if (!handle) {
+      throw new Error("middleware 初始化handle不存在");
+    }
+    this._router.use(path, handle);
+    return this;
   }
 
-  get(path: string, handle: HandleFnType) {
-    this._router.get(path, handle);
+  handle(req: IncomingMessage, res: ServerResponse) {
+    const done = function (err: any) {
+      res.writeHead(200, {
+        "Content-Type": "text/plain",
+      });
+      if (err) {
+        res.end("404: " + err);
+      } else {
+        var msg = "Cannot " + req.method + " " + req.url;
+        res.end(msg);
+      }
+    };
+    return this._router.handle(req, res, done);
   }
 
   listen(port: number, cb: (() => void) | undefined) {
     this.server = http.createServer(
       (req: IncomingMessage, res: ServerResponse) => {
-        // if (!(res as any).send) {
-        //   (res as any).send = (body: any) => {
-        //     res.writeHead(200, {
-        //       "Content-Type": "text/plain",
-        //     });
-        //     res.end(body);
-        //   };
-        // }
-        return this._router.handle(req, res);
+        this.handle(req, res);
       }
     );
     this.server?.listen.call(this.server, port, cb);
     console.log("server start. listen port:", port);
   }
 }
+
+getBasicNodeMethods().forEach((method) => {
+  SelfExpress.prototype[method] = function (
+    path: string,
+    handle: HandleFnType
+  ) {
+    this._router[method].call(this._router, path, handle);
+    return this;
+  };
+});
 
 export default SelfExpress;
