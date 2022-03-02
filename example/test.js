@@ -1,4 +1,4 @@
-const SelfExpress = require("./index");
+const SelfExpress = require("../lib/index");
 const app = new SelfExpress();
 
 app.use("/", (req, res, next) => {
